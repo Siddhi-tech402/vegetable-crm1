@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Admin User",
+    "email": "admin@vegetablecrm.com",
+    "password": "$2a$12$abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopq", 
+    "role": "admin",
+    "phone": "+91-9999999999",
+    "address": "Admin Office, City",
+    "isActive": true,
+    "createdAt": "2026-03-17T00:00:00.000Z",
+    "updatedAt": "2026-03-17T00:00:00.000Z"
+  },
+  {
+    "name": "Super Admin",
+    "email": "superadmin@vegetablecrm.com",
+    "password": "$2a$12$abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopq",
+    "role": "admin",
+    "phone": "+91-9999999998",
+    "address": "Headquarters, City",
+    "isActive": true,
+    "createdAt": "2026-03-17T00:00:00.000Z",
+    "updatedAt": "2026-03-17T00:00:00.000Z"
+  }
+]
