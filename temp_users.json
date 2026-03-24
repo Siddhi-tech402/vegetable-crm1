@@ -1,0 +1,79 @@
+[
+  {
+    "_id": "69b907f2504facafed136e77",
+    "name": "kaushika",
+    "email": "kaushika29@gmail.com",
+    "password": "$2a$12$F6pFPojXEV6VsmsrzidMv.rzLyi.PobeavwqVGkS1j/WkPMbk2n9C",
+    "role": "farmer",
+    "isActive": true,
+    "createdAt": "2026-03-17T07:51:14.856Z",
+    "updatedAt": "2026-03-17T07:51:14.856Z",
+    "__v": 0
+  },
+  {
+    "_id": "69b97dc3865d51852a8bf523",
+    "name": "kajal parekh",
+    "email": "kajal239@gmail.com",
+    "password": "$2a$12$9DK5URBtNW2QyRrrgqybCOUAsnHCyYGVU0Pm57nDr9e3/cn7Du.Ce",
+    "role": "vendor",
+    "isActive": true,
+    "createdAt": "2026-03-17T16:13:55.892Z",
+    "updatedAt": "2026-03-17T16:13:55.892Z",
+    "__v": 0
+  },
+  {
+    "_id": "69b97fca865d51852a8bf737",
+    "name": "Dev",
+    "email": "devrajyaguru1809@gmail.com",
+    "password": "$2a$12$XGVN8In3ksLAgiwhZJY7n.QZ0KHBx5AwaBqXqQKnYe3DfMMSgPIMy",
+    "role": "admin",
+    "isActive": true,
+    "createdAt": "2026-03-17T16:22:34.476Z",
+    "updatedAt": "2026-03-17T16:22:34.476Z",
+    "__v": 0
+  },
+  {
+    "_id": "69bcd867aae17d48959d873f",
+    "name": "purvi patel",
+    "email": "purvirudani004@gmail.com",
+    "password": "$2a$12$AGyRVtMS2CH/qsWEe8IWReGe63WMaO39Sdt2qI2P0O95ilXd0AWUC",
+    "role": "farmer",
+    "isActive": true,
+    "createdAt": "2026-03-20T05:17:27.780Z",
+    "updatedAt": "2026-03-20T05:17:27.780Z",
+    "__v": 0
+  },
+  {
+    "_id": "69bcea43a4f5a473bd6209a6",
+    "name": "maheshbhai",
+    "email": "siddhijani333@gmail.com",
+    "password": "$2a$12$pXB3Kf.Hc4kJiXaNVSenO.UrLr82ZlWa.Z7Gs5U2DVPNcQM/Rlpqm",
+    "role": "vendor",
+    "isActive": true,
+    "createdAt": "2026-03-20T06:33:39.342Z",
+    "updatedAt": "2026-03-20T06:33:39.342Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2be6d28838c2d466fad5d",
+    "name": "Ajay parmar",
+    "email": "ajayparmar101@gmail.com",
+    "password": "$2a$12$em.sy8681z4FCVDYVrsTje/6RgVD0SZlM6N6ubqeWi/fPVe/55qve",
+    "role": "farmer",
+    "isActive": true,
+    "createdAt": "2026-03-24T16:40:13.819Z",
+    "updatedAt": "2026-03-24T16:40:13.819Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2bf5409ac2e273d229e21",
+    "name": "gargi jain",
+    "email": "gargijain123@gmail.com",
+    "password": "$2a$12$bma/JVU8F7Gye1A8U25MqO36kG6k9Hg.FA5yICze74TKctL0ip63a",
+    "role": "vendor",
+    "isActive": true,
+    "createdAt": "2026-03-24T16:44:04.605Z",
+    "updatedAt": "2026-03-24T16:44:04.605Z",
+    "__v": 0
+  }
+]

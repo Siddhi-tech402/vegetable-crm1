@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
 
     const query: any = {};
     // Admin sees all data; vendors/farmers see only their own
-    if (session.user.role !== 'admin') {
-      query.createdBy = session.user.id;
+    if (session.user.role === 'farmer') {
+      query.createdBy = { $in: [session.user.id, null] };
     }
     
     if (financialYear) {

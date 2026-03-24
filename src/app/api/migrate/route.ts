@@ -92,3 +92,5 @@ async function getFirstUserId(db: any): Promise<mongoose.Types.ObjectId | null> 
     return null;
   }
 }
+
+export const GET = POST;

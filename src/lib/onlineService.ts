@@ -40,16 +40,21 @@ export async function fetchCustomers(params?: Record<string, string>) {
       const qs = new URLSearchParams({ limit: '1000', ...params }).toString();
       const data = await apiFetch<any>(`/api/customers?${qs}`);
       const items = data.customers || [];
-      // Mirror to IndexedDB
       for (const item of items) {
         try {
           const db = (await import('@/offline')).getDB;
           const idb = await db();
           const localId = item.localId || `server_${item._id}`;
-          await idb.put('customers', { ...item, localId, syncStatus: 'synced' });
+          const existing = await idb.get('customers', localId);
+          if (!existing || existing.syncStatus !== 'pending') {
+            await idb.put('customers', { ...item, localId, syncStatus: 'synced' });
+          }
         } catch {}
       }
-      return items;
+      const pendingItems = await customersStore.getPending();
+      const pendingMap = new Map(pendingItems.map(p => [p.localId, p]));
+      const mergedItems = [...items.filter((i: any) => !pendingMap.has(i.localId || `server_${i._id}`)), ...pendingItems];
+      return mergedItems;
     } catch (err) {
       console.warn('API fetch customers failed, falling back to IndexedDB:', err);
     }
@@ -142,10 +147,16 @@ export async function fetchFarmers(params?: Record<string, string>) {
           const db = (await import('@/offline')).getDB;
           const idb = await db();
           const localId = item.localId || `server_${item._id}`;
-          await idb.put('farmers', { ...item, localId, syncStatus: 'synced' });
+          const existing = await idb.get('farmers', localId);
+          if (!existing || existing.syncStatus !== 'pending') {
+            await idb.put('farmers', { ...item, localId, syncStatus: 'synced' });
+          }
         } catch {}
       }
-      return items;
+      const pendingItems = await farmersStore.getPending();
+      const pendingMap = new Map(pendingItems.map(p => [p.localId, p]));
+      const mergedItems = [...items.filter((i: any) => !pendingMap.has(i.localId || `server_${i._id}`)), ...pendingItems];
+      return mergedItems;
     } catch (err) {
       console.warn('API fetch farmers failed, falling back to IndexedDB:', err);
     }
@@ -233,10 +244,16 @@ export async function fetchVegetables(params?: Record<string, string>) {
           const db = (await import('@/offline')).getDB;
           const idb = await db();
           const localId = item.localId || `server_${item._id}`;
-          await idb.put('vegetables', { ...item, localId, syncStatus: 'synced' });
+          const existing = await idb.get('vegetables', localId);
+          if (!existing || existing.syncStatus !== 'pending') {
+            await idb.put('vegetables', { ...item, localId, syncStatus: 'synced' });
+          }
         } catch {}
       }
-      return items;
+      const pendingItems = await vegetablesStore.getPending();
+      const pendingMap = new Map(pendingItems.map(p => [p.localId, p]));
+      const mergedItems = [...items.filter((i: any) => !pendingMap.has(i.localId || `server_${i._id}`)), ...pendingItems];
+      return mergedItems;
     } catch (err) {
       console.warn('API fetch vegetables failed, falling back to IndexedDB:', err);
     }
@@ -324,10 +341,16 @@ export async function fetchSalesBills(params?: Record<string, string>) {
           const db = (await import('@/offline')).getDB;
           const idb = await db();
           const localId = item.localId || `server_${item._id}`;
-          await idb.put('salesBills', { ...item, localId, syncStatus: 'synced' });
+          const existing = await idb.get('salesBills', localId);
+          if (!existing || existing.syncStatus !== 'pending') {
+            await idb.put('salesBills', { ...item, localId, syncStatus: 'synced' });
+          }
         } catch {}
       }
-      return items;
+      const pendingItems = await salesBillsStore.getPending();
+      const pendingMap = new Map(pendingItems.map(p => [p.localId, p]));
+      const mergedItems = [...items.filter((i: any) => !pendingMap.has(i.localId || `server_${i._id}`)), ...pendingItems];
+      return mergedItems;
     } catch (err) {
       console.warn('API fetch sales bills failed, falling back to IndexedDB:', err);
     }
@@ -371,10 +394,16 @@ export async function fetchPayments(params?: Record<string, string>) {
           const db = (await import('@/offline')).getDB;
           const idb = await db();
           const localId = item.localId || `server_${item._id}`;
-          await idb.put('payments', { ...item, localId, syncStatus: 'synced' });
+          const existing = await idb.get('payments', localId);
+          if (!existing || existing.syncStatus !== 'pending') {
+            await idb.put('payments', { ...item, localId, syncStatus: 'synced' });
+          }
         } catch {}
       }
-      return items;
+      const pendingItems = await paymentsStore.getPending();
+      const pendingMap = new Map(pendingItems.map(p => [p.localId, p]));
+      const mergedItems = [...items.filter((i: any) => !pendingMap.has(i.localId || `server_${i._id}`)), ...pendingItems];
+      return mergedItems;
     } catch (err) {
       console.warn('API fetch payments failed, falling back to IndexedDB:', err);
     }
@@ -418,10 +447,16 @@ export async function fetchSupplyEntries(params?: Record<string, string>) {
           const db = (await import('@/offline')).getDB;
           const idb = await db();
           const localId = item.localId || `server_${item._id}`;
-          await idb.put('supplyEntries', { ...item, localId, syncStatus: 'synced' });
+          const existing = await idb.get('supplyEntries', localId);
+          if (!existing || existing.syncStatus !== 'pending') {
+            await idb.put('supplyEntries', { ...item, localId, syncStatus: 'synced' });
+          }
         } catch {}
       }
-      return items;
+      const pendingItems = await supplyEntriesStore.getPending();
+      const pendingMap = new Map(pendingItems.map(p => [p.localId, p]));
+      const mergedItems = [...items.filter((i: any) => !pendingMap.has(i.localId || `server_${i._id}`)), ...pendingItems];
+      return mergedItems;
     } catch (err) {
       console.warn('API fetch supply entries failed, falling back to IndexedDB:', err);
     }
