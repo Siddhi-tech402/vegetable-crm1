@@ -89,8 +89,8 @@ export default function CashBookPage() {
     return matchType && matchMode && matchDateFrom && matchDateTo;
   });
 
-  // Calculate summaries
-  const summary = filteredTransactions.reduce(
+  // Calculate summaries from ALL transactions (not just filtered)
+  const summary = transactions.reduce(
     (acc, tx) => {
       if (tx.type === 'receipt') {
         acc.totalReceipts += tx.amount;
@@ -150,7 +150,7 @@ export default function CashBookPage() {
             row.type === 'receipt' ? 'text-green-600' : 'text-red-500'
           }`}
         >
-          {row.type === 'receipt' ? '+' : '-'}₹{value.toLocaleString()}
+          ₹{Math.abs(value).toLocaleString()}
         </span>
       ),
     },
@@ -248,29 +248,44 @@ export default function CashBookPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-          <div className="flex items-center gap-2 text-green-600 mb-1">
-            <FiArrowDownCircle className="w-5 h-5" />
-            <span className="text-sm">Total Receipts</span>
+        {/* Total Receipts */}
+        <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-green-600">
+              <FiArrowDownCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">Total Receipts</span>
+            </div>
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-300 text-xs font-bold">
+              {summary.receiptCount}
+            </span>
           </div>
           <p className="text-2xl font-bold text-green-600">
             ₹{summary.totalReceipts.toLocaleString()}
           </p>
-          <p className="text-xs text-gray-500">{summary.receiptCount} transactions</p>
+          <p className="text-xs text-gray-500 mt-1">{summary.receiptCount} receipt{summary.receiptCount !== 1 ? 's' : ''}</p>
         </div>
-        <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
-          <div className="flex items-center gap-2 text-red-500 mb-1">
-            <FiArrowUpCircle className="w-5 h-5" />
-            <span className="text-sm">Total Payments</span>
+
+        {/* Total Payments */}
+        <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-red-500">
+              <FiArrowUpCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">Total Payments</span>
+            </div>
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 text-xs font-bold">
+              {summary.paymentCount}
+            </span>
           </div>
           <p className="text-2xl font-bold text-red-500">
             ₹{summary.totalPayments.toLocaleString()}
           </p>
-          <p className="text-xs text-gray-500">{summary.paymentCount} transactions</p>
+          <p className="text-xs text-gray-500 mt-1">{summary.paymentCount} payment{summary.paymentCount !== 1 ? 's' : ''}</p>
         </div>
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-          <div className="flex items-center gap-2 text-blue-600 mb-1">
-            <span className="text-sm">Net Cash Flow</span>
+
+        {/* Net Cash Flow */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 shadow-sm">
+          <div className="flex items-center gap-2 text-blue-600 mb-2">
+            <span className="text-sm font-medium">Net Cash Flow</span>
           </div>
           <p
             className={`text-2xl font-bold ${
@@ -282,16 +297,23 @@ export default function CashBookPage() {
             {summary.totalReceipts - summary.totalPayments >= 0 ? '+' : ''}₹
             {(summary.totalReceipts - summary.totalPayments).toLocaleString()}
           </p>
-          <p className="text-xs text-gray-500">Receipts - Payments</p>
+          <p className="text-xs text-gray-500 mt-1">Receipts − Payments</p>
         </div>
-        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-          <div className="flex items-center gap-2 text-purple-600 mb-1">
-            <span className="text-sm">Total Transactions</span>
+
+        {/* Total Transactions */}
+        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-purple-600">All Transactions</span>
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 text-xs font-bold">
+              {summary.receiptCount + summary.paymentCount}
+            </span>
           </div>
           <p className="text-2xl font-bold text-purple-600">
             {summary.receiptCount + summary.paymentCount}
           </p>
-          <p className="text-xs text-gray-500">In selected period</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {summary.receiptCount}↓ receipts · {summary.paymentCount}↑ payments
+          </p>
         </div>
       </div>
 
