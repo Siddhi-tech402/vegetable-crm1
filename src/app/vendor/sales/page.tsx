@@ -43,23 +43,30 @@ export default function SalesBillsPage() {
   const loadBills = useCallback(async () => {
     try {
       const storeData = await fetchSalesBills();
-      const mapped: BillItem[] = (storeData || []).map((b: any) => ({
-        id: b._id || b.localId || b.id,
-        localId: b.localId,
-        _id: b._id,
-        billNumber: b.billNumber,
-        billDate: b.billDate,
-        farmerCode: b.farmerCode || '',
-        farmerName: b.farmerName || '',
-        totalQty: b.buyers?.reduce((sum: number, buyer: any) =>
-          sum + (buyer.items?.reduce((s: number, i: any) => s + (i.qty || 0), 0) || 0), 0) || 0,
-        grossAmount: b.totalSaleAmount || 0,
-        totalDeductions: b.totalDeductions || 0,
-        netPayable: b.netPayableToFarmer || 0,
-        status: b.status || 'pending',
-        buyersCount: b.buyers?.length || 0,
-        buyers: b.buyers || [],
-      }));
+      const mapped: BillItem[] = (storeData || []).map((b: any) => {
+        let formattedDate = '';
+        if (b.billDate) {
+          const d = new Date(b.billDate);
+          if (!isNaN(d.getTime())) formattedDate = d.toISOString().split('T')[0];
+        }
+        return {
+          id: b._id || b.localId || b.id,
+          localId: b.localId,
+          _id: b._id,
+          billNumber: b.billNumber,
+          billDate: formattedDate,
+          farmerCode: b.farmerCode || '',
+          farmerName: b.farmerName || '',
+          totalQty: b.buyers?.reduce((sum: number, buyer: any) =>
+            sum + (buyer.items?.reduce((s: number, i: any) => s + (i.quantity ?? i.qty ?? 0), 0) || 0), 0) || 0,
+          grossAmount: b.totalSaleAmount || 0,
+          totalDeductions: b.totalDeductions || 0,
+          netPayable: b.netPayableToFarmer || 0,
+          status: b.status || 'pending',
+          buyersCount: b.buyers?.length || 0,
+          buyers: b.buyers || [],
+        };
+      });
       setBills(mapped);
     } catch (error) {
       console.error('Failed to load sales bills:', error);
@@ -111,7 +118,7 @@ export default function SalesBillsPage() {
       key: 'totalDeductions',
       header: 'Deductions',
       render: (value: number) => (
-        <span className="text-red-500">-₹{value.toLocaleString()}</span>
+        <span className="text-red-500">₹{Math.abs(value).toLocaleString()}</span>
       ),
     },
     {
