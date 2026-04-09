@@ -30,7 +30,18 @@ export async function GET(request: NextRequest) {
     if (session.user.role === 'farmer') {
       const farmer = await resolveFarmerForSessionUser(session.user);
       if (farmer) {
-        query.farmerId = farmer._id;
+        // Query by farmerId OR farmerName (case-insensitive) to handle cases where
+        // the entry was created before the farmer user account existed.
+        const farmerNameRegex = { $regex: new RegExp(`^${farmer.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+        query.$or = [
+          { farmerId: farmer._id },
+          { farmerName: farmerNameRegex },
+        ];
+        // Backfill farmerId for entries only matched by name
+        SupplyEntry.updateMany(
+          { farmerName: farmerNameRegex, farmerId: { $exists: false } },
+          { $set: { farmerId: farmer._id } }
+        ).catch(() => {});
       } else {
         // Farmer profile not linked — return empty
         return NextResponse.json({
@@ -49,11 +60,17 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      query.$or = [
+      const searchOr = [
         { vegetableName: { $regex: search, $options: 'i' } },
         { farmerName: { $regex: search, $options: 'i' } },
         { farmerCode: { $regex: search, $options: 'i' } },
       ];
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, { $or: searchOr }];
+        delete query.$or;
+      } else {
+        query.$or = searchOr;
+      }
     }
 
     const skip = (page - 1) * limit;

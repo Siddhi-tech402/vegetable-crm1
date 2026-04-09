@@ -1,0 +1,126 @@
+[
+  {
+    "_id": "69b97ebf865d51852a8bf651",
+    "billNumber": "SB2026-0001",
+    "billDate": "2026-03-17T00:00:00.000Z",
+    "farmerId": "69b97e6f865d51852a8bf5f0",
+    "farmerName": "Himmat parekh",
+    "farmerCode": "F0001",
+    "buyers": [
+      {
+        "customerId": "69b97e3b865d51852a8bf5bd",
+        "customerName": "maheshbhai",
+        "customerCode": "C0001",
+        "items": [
+          {
+            "vegetableId": "69b97e85865d51852a8bf607",
+            "vegetableName": "bhindi",
+            "quantity": 60,
+            "unit": "kg",
+            "rate": 15,
+            "amount": 45
+          },
+          {
+            "vegetableId": "69b97e85865d51852a8bf607",
+            "vegetableName": "bhindi",
+            "quantity": 30,
+            "unit": "kg",
+            "rate": 20,
+            "amount": 30
+          }
+        ],
+        "subtotal": 75,
+        "commission": 5,
+        "commissionAmount": 4,
+        "marketFee": 1,
+        "marketFeeAmount": 1,
+        "hamali": 900,
+        "totalDeductions": 905,
+        "netAmount": -830
+      }
+    ],
+    "totalSaleAmount": 75,
+    "totalCommission": 4,
+    "totalMarketFee": 1,
+    "totalHamali": 900,
+    "totalDeductions": 905,
+    "netPayableToFarmer": 728.75,
+    "financialYear": "2025-26",
+    "status": "pending",
+    "paidAmount": 0,
+    "pendingAmount": 728.75,
+    "balanceAmount": -830,
+    "totals": {
+      "totalQty": 90,
+      "grossAmount": 75,
+      "totalCommission": 4,
+      "totalHamali": 900,
+      "totalMarketFee": 1,
+      "totalDeductions": 905,
+      "netPayable": -830
+    },
+    "createdBy": "69b97dc3865d51852a8bf523",
+    "syncStatus": "synced",
+    "createdAt": "2026-03-17T16:18:07.246Z",
+    "updatedAt": "2026-03-17T16:18:07.246Z",
+    "__v": 0
+  },
+  {
+    "_id": "69bceb0685bce9a83f5879c6",
+    "billNumber": "SB2026-0001",
+    "billDate": "2026-03-20T00:00:00.000Z",
+    "farmerId": "69bceac054ba791227ddd679",
+    "farmerName": "miteshbhai",
+    "farmerCode": "F0001",
+    "buyers": [
+      {
+        "customerId": "69bcea7f54ba791227ddd651",
+        "customerName": "hiteshbhai",
+        "customerCode": "C0001",
+        "items": [
+          {
+            "vegetableId": "69bcead654ba791227ddd680",
+            "vegetableName": "potato",
+            "quantity": 60,
+            "unit": "kg",
+            "rate": 30,
+            "amount": 90
+          }
+        ],
+        "subtotal": 90,
+        "commission": 5,
+        "commissionAmount": 5,
+        "marketFee": 1,
+        "marketFeeAmount": 1,
+        "hamali": 600,
+        "totalDeductions": 606,
+        "netAmount": -516
+      }
+    ],
+    "totalSaleAmount": 90,
+    "totalCommission": 5,
+    "totalMarketFee": 1,
+    "totalHamali": 600,
+    "totalDeductions": 606,
+    "netPayableToFarmer": 744.5,
+    "financialYear": "2025-26",
+    "status": "pending",
+    "paidAmount": 0,
+    "pendingAmount": 744.5,
+    "balanceAmount": -516,
+    "totals": {
+      "totalQty": 60,
+      "grossAmount": 90,
+      "totalCommission": 5,
+      "totalHamali": 600,
+      "totalMarketFee": 1,
+      "totalDeductions": 606,
+      "netPayable": -516
+    },
+    "createdBy": "69bcea43a4f5a473bd6209a6",
+    "syncStatus": "synced",
+    "createdAt": "2026-03-20T06:36:54.511Z",
+    "updatedAt": "2026-03-20T06:36:54.511Z",
+    "__v": 0
+  }
+]

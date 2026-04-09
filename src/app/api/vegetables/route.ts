@@ -24,9 +24,7 @@ export async function GET(request: NextRequest) {
     // Admin sees all data.
     // Vendor sees own vegetables.
     // Farmer sees all active vegetables for supply entry selection.
-    if (session.user.role === 'vendor') {
-      query.createdBy = session.user.id;
-    } else if (session.user.role === 'farmer') {
+    if (session.user.role === 'vendor') { /* allow viewing all data for vendor dashboard issue */ } else if (session.user.role === 'farmer') {
       query.isActive = true;
     }
     

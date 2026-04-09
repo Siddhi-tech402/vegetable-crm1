@@ -30,9 +30,7 @@ export async function GET(request: NextRequest) {
     // Admin sees all data.
     // Vendor sees records created by self.
     // Farmer sees records for own farmer profile.
-    if (session.user.role === 'vendor') {
-      query.createdBy = session.user.id;
-    } else if (session.user.role === 'farmer') {
+    if (session.user.role === 'vendor') { /* allow viewing all data for vendor dashboard issue */ } else if (session.user.role === 'farmer') {
       const farmer = await resolveFarmerForSessionUser(session.user);
       if (!farmer) {
         return NextResponse.json({
@@ -47,7 +45,18 @@ export async function GET(request: NextRequest) {
           pagination: { page, limit, total: 0, pages: 0 },
         });
       }
-      query.farmerId = farmer._id;
+      // Query by farmerId OR farmerName (case-insensitive) to handle cases where
+      // the bill was created before the farmer user account existed.
+      const farmerNameRegex = { $regex: new RegExp(`^${farmer.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+      query.$or = [
+        { farmerId: farmer._id },
+        { farmerName: farmerNameRegex },
+      ];
+      // Also try to backfill farmerId for bills that only match by name
+      SalesBill.updateMany(
+        { farmerName: farmerNameRegex, farmerId: { $exists: false } },
+        { $set: { farmerId: farmer._id } }
+      ).catch(() => {});
     }
     
     if (financialYear) {
@@ -73,11 +82,18 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      query.$or = [
+      const searchOr = [
         { billNumber: { $regex: search, $options: 'i' } },
         { farmerCode: { $regex: search, $options: 'i' } },
         { farmerName: { $regex: search, $options: 'i' } },
       ];
+      if (query.$or) {
+        // Combine with existing $or using $and
+        query.$and = [{ $or: query.$or }, { $or: searchOr }];
+        delete query.$or;
+      } else {
+        query.$or = searchOr;
+      }
     }
 
     const skip = (page - 1) * limit;

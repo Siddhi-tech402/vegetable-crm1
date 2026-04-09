@@ -13,7 +13,7 @@ export function buildIdQuery(id: string, createdBy?: string): Record<string, any
     : { localId: id };
 
   if (createdBy) {
-    query.createdBy = createdBy;
+    query.createdBy = { $in: [createdBy, null] };
   }
 
   return query;

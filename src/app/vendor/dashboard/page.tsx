@@ -69,12 +69,18 @@ export default function VendorDashboard() {
       setRecentPayments(mappedPayments);
 
       // Calculate stats
-      const todayBills = allBills.filter((b: any) => b.billDate === today);
+      // billDate & voucherDate come from MongoDB as ISO strings e.g. "2026-04-09T00:00:00.000Z"
+      // so we use startsWith(today) to match just the date part
+      const todayBills = allBills.filter((b: any) => {
+        const dateStr = b.billDate ? String(b.billDate).substring(0, 10) : '';
+        return dateStr === today;
+      });
       const todaySales = todayBills.reduce((sum: number, b: any) => sum + (b.totalSaleAmount || 0), 0);
 
-      const todayReceipts = allPayments.filter(
-        (p: any) => p.voucherDate === today && p.type === 'receipt'
-      );
+      const todayReceipts = allPayments.filter((p: any) => {
+        const dateStr = p.voucherDate ? String(p.voucherDate).substring(0, 10) : '';
+        return dateStr === today && p.type === 'receipt';
+      });
       const todayCollection = todayReceipts.reduce(
         (sum: number, p: any) => sum + (p.amount || p.netAmount || 0),
         0
