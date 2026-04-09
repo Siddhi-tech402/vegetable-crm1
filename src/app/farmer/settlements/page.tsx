@@ -33,40 +33,53 @@ export default function FarmerSettlementsPage() {
   const [pendingBills, setPendingBills] = useState<PendingBillItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadData = useCallback(async (params?: Record<string, string>) => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [payments, bills] = await Promise.all([
-        fetchPayments(params),
-        fetchSalesBills(params),
+        fetchPayments(),
+        fetchSalesBills(),
       ]);
 
       // Map payments to settlement view (only farmer payments)
       const settlements: SettlementItem[] = (payments as any[])
         .filter((p: any) => p.type === 'payment' || p.partyType === 'Farmer')
-        .map((p: any) => ({
-          id: p.localId || p._id || '',
-          voucherNumber: p.voucherNumber || '',
-          voucherDate: p.voucherDate || (p.date ? String(p.date).split('T')[0] : ''),
-          amount: p.amount || 0,
-          paymentMode: p.paymentMode || p.mode || 'cash',
-          billNumber: p.settlements?.[0]?.billNumber || '',
-          narration: p.narration || '',
-          status: 'confirmed',
-        }));
+        .map((p: any) => {
+          let formattedDate = '';
+          const dp = p.voucherDate || p.date;
+          if (dp) {
+            const d = new Date(dp);
+            if (!isNaN(d.getTime())) formattedDate = d.toISOString().split('T')[0];
+          }
+          return {
+            id: p.localId || p._id || '',
+            voucherNumber: p.voucherNumber || '',
+            voucherDate: formattedDate,
+            amount: p.amount || 0,
+            paymentMode: p.paymentMode || p.mode || 'cash',
+            billNumber: p.settlements?.[0]?.billNumber || '',
+            narration: p.narration || '',
+            status: 'confirmed',
+          };
+        });
       setSettlementData(settlements);
 
       // Calculate pending bills
       const pending: PendingBillItem[] = (bills as any[])
         .filter((b: any) => b.status !== 'settled')
         .map((b: any) => {
+          let formattedDate = '';
+          if (b.billDate) {
+            const d = new Date(b.billDate);
+            if (!isNaN(d.getTime())) formattedDate = d.toISOString().split('T')[0];
+          }
           const netPayable = b.totals?.netPayable || 0;
           const paidAmount = b.paidAmount || 0;
           const pendingAmount = netPayable - paidAmount;
           return {
             id: b.localId || b._id || '',
             billNumber: b.billNumber || '',
-            billDate: b.billDate ? String(b.billDate).split('T')[0] : '',
+            billDate: formattedDate,
             netPayable,
             paidAmount,
             pendingAmount,
@@ -81,16 +94,30 @@ export default function FarmerSettlementsPage() {
     }
   }, []);
 
+  const [appliedFilters, setAppliedFilters] = useState({ dateFrom: '', dateTo: '' });
+
   const handleApplyFilter = () => {
-    const params: Record<string, string> = {};
-    if (dateFrom) params.dateFrom = dateFrom;
-    if (dateTo) params.dateTo = dateTo;
-    loadData(params);
+    setAppliedFilters({ dateFrom, dateTo });
   };
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Client-side filtering
+  const filteredSettlements = settlementData.filter((item) => {
+    let match = true;
+    if (appliedFilters.dateFrom && item.voucherDate < appliedFilters.dateFrom) match = false;
+    if (appliedFilters.dateTo && item.voucherDate > appliedFilters.dateTo) match = false;
+    return match;
+  });
+
+  const filteredPending = pendingBills.filter((item) => {
+    let match = true;
+    if (appliedFilters.dateFrom && item.billDate < appliedFilters.dateFrom) match = false;
+    if (appliedFilters.dateTo && item.billDate > appliedFilters.dateTo) match = false;
+    return match;
+  });
 
   const settlementColumns = [
     { key: 'voucherNumber', header: 'Voucher No.', sortable: true },
@@ -107,7 +134,7 @@ export default function FarmerSettlementsPage() {
       sortable: true,
       render: (value: number) => (
         <span className="font-semibold text-green-600 dark:text-green-400">
-          ₹{value.toLocaleString()}
+          ₹{Math.abs(value).toLocaleString()}
         </span>
       ),
     },
@@ -151,8 +178,8 @@ export default function FarmerSettlementsPage() {
     },
   ];
 
-  const totalReceived = settlementData.reduce((sum, item) => sum + item.amount, 0);
-  const totalPending = pendingBills.reduce((sum, item) => sum + item.pendingAmount, 0);
+  const totalReceived = filteredSettlements.reduce((sum, item) => sum + item.amount, 0);
+  const totalPending = filteredPending.reduce((sum, item) => sum + item.pendingAmount, 0);
 
   return (
     <div className="space-y-6">
@@ -175,7 +202,7 @@ export default function FarmerSettlementsPage() {
         </div>
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
           <p className="text-sm opacity-90">Pending Bills</p>
-          <p className="text-3xl font-bold mt-1">{pendingBills.length}</p>
+          <p className="text-3xl font-bold mt-1">{filteredPending.length}</p>
         </div>
       </div>
 
@@ -199,6 +226,18 @@ export default function FarmerSettlementsPage() {
           <Button leftIcon={<FiFilter />} onClick={handleApplyFilter} isLoading={isLoading}>
             Apply Filter
           </Button>
+          {(appliedFilters.dateFrom || appliedFilters.dateTo) && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setDateFrom('');
+                setDateTo('');
+                setAppliedFilters({ dateFrom: '', dateTo: '' });
+              }}
+            >
+              Clear
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -210,7 +249,7 @@ export default function FarmerSettlementsPage() {
         />
         <DataTable
           columns={pendingColumns}
-          data={pendingBills}
+          data={filteredPending}
           keyField="id"
           searchable={false}
           pageSize={5}
@@ -226,7 +265,7 @@ export default function FarmerSettlementsPage() {
         />
         <DataTable
           columns={settlementColumns}
-          data={settlementData}
+          data={filteredSettlements}
           keyField="id"
           searchPlaceholder="Search by voucher number..."
           pageSize={10}

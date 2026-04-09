@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Card, CardHeader, DataTable, Badge, Button, Input, Select, Modal } from '@/components/ui';
 import { useFinancialYear } from '@/hooks/useFinancialYear';
-import { fetchSupplyEntries, fetchVegetables, createSupplyEntry } from '@/lib/onlineService';
+import { fetchSupplyEntries, fetchVegetables, createSupplyEntry, fetchSalesBills } from '@/lib/onlineService';
 
 interface SupplyItem {
   id: string;
@@ -46,18 +46,62 @@ export default function FarmerSupplyPage() {
   // Load supply entries and vegetables
   const loadData = useCallback(async () => {
     try {
-      const [supplyEntries, vegetables] = await Promise.all([
+      const [supplyEntries, vegetables, salesBills] = await Promise.all([
         fetchSupplyEntries(),
         fetchVegetables(),
+        fetchSalesBills(),
       ]);
 
-      // Map supply entries
+      // Calculate total sold by vegetable (across all time)
+      const totalSoldByVeg: Record<string, number> = {};
+      const bills = salesBills as any[];
+      bills.forEach((bill) => {
+        bill.buyers?.forEach((buyer: any) => {
+          buyer.items?.forEach((item: any) => {
+            const vName = String(item.vegetableName).toLowerCase().trim();
+            totalSoldByVeg[vName] = (totalSoldByVeg[vName] || 0) + (item.quantity ?? item.qty ?? 0);
+          });
+        });
+      });
+
+      // Sort raw entries chronologically for FIFO allocation
+      const rawEntries = [...(supplyEntries as any[])].sort((a, b) => {
+        const da = new Date(a.entryDate || a.date).getTime();
+        const db = new Date(b.entryDate || b.date).getTime();
+        return da - db;
+      });
+
+      const allocatedSoldItemsMap = new Map<string, number>();
+
+      // Perform FIFO allocation
+      rawEntries.forEach((entry) => {
+        const vegName = String(entry.items?.[0]?.vegetableName || entry.vegetableName || '').toLowerCase().trim();
+        const totalQty = entry.quantity || entry.totalQty || (entry.items || []).reduce((s: number, i: any) => s + (i.qty || 0), 0);
+        const id = entry.localId || entry._id || entry.id || '';
+        
+        const remainingSold = totalSoldByVeg[vegName] || 0;
+        const allocation = Math.min(totalQty, remainingSold);
+        
+        allocatedSoldItemsMap.set(id, allocation);
+        if (remainingSold > 0) {
+          totalSoldByVeg[vegName] -= allocation;
+        }
+      });
+
+      // Map supply entries with accurately calculated "soldQuantity"
       const items: SupplyItem[] = (supplyEntries as any[]).map((entry: any) => {
         const totalQty = entry.quantity || entry.totalQty || (entry.items || []).reduce((s: number, i: any) => s + (i.qty || 0), 0);
         const totalAmount = entry.expectedAmount || entry.totalAmount || (entry.items || []).reduce((s: number, i: any) => s + (i.amount || 0), 0);
         const vegName = entry.items?.[0]?.vegetableName || entry.vegetableName || '';
+        const id = entry.localId || entry._id || entry.id || '';
+
+        const calculatedSold = allocatedSoldItemsMap.get(id) || entry.soldQuantity || 0;
+        let finalStatus = entry.status || 'pending';
+        if (calculatedSold >= totalQty && totalQty > 0) finalStatus = 'sold';
+        else if (calculatedSold > 0) finalStatus = 'partial';
+
         return {
-          id: entry.localId || entry._id || entry.id || '',
+          id,
           entryDate: entry.entryDate
             ? String(entry.entryDate).split('T')[0]
             : entry.date
@@ -68,10 +112,13 @@ export default function FarmerSupplyPage() {
           unit: entry.unit || entry.items?.[0]?.unit || 'kg',
           expectedPrice: totalQty > 0 ? totalAmount / totalQty : 0,
           expectedAmount: totalAmount,
-          status: entry.status || 'pending',
-          soldQuantity: entry.soldQuantity || 0,
+          status: finalStatus,
+          soldQuantity: calculatedSold,
         };
-      });
+      })
+      // Sort by latest for display
+      .sort((a, b) => new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime());
+      
       setSupplyData(items);
 
       // Build vegetable options from store

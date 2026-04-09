@@ -809,29 +809,29 @@ export default function NewSalesBillPage() {
                   </div>
                   <div className="flex justify-between text-green-600">
                     <span>Commission ({charges.commissionPct}%):</span>
-                    <span>+₹{commissionAmt.toFixed(2)}</span>
+                    <span>₹{commissionAmt.toFixed(2)}</span>
                   </div>
                   {charges.transportation > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Transportation:</span>
-                      <span>+₹{charges.transportation.toFixed(2)}</span>
+                      <span>₹{charges.transportation.toFixed(2)}</span>
                     </div>
                   )}
                   {charges.localTransportation > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Local Transport:</span>
-                      <span>+₹{charges.localTransportation.toFixed(2)}</span>
+                      <span>₹{charges.localTransportation.toFixed(2)}</span>
                     </div>
                   )}
                   {charges.otherCharges > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Other:</span>
-                      <span>+₹{charges.otherCharges.toFixed(2)}</span>
+                      <span>₹{charges.otherCharges.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
                     <span className="text-gray-500">Total Additions:</span>
-                    <span className="font-medium text-green-600">+₹{totalCharges.toFixed(2)}</span>
+                    <span className="font-medium text-green-600">₹{totalCharges.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2 text-lg">
                     <span className="font-bold text-gray-800 dark:text-gray-200">

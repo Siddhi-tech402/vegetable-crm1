@@ -378,19 +378,19 @@ export default function SalesBillDetailPage() {
                 <div className="grid grid-cols-3 md:grid-cols-4 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Commission ({buyer.commissionRate}%)</span>
-                    <p className="font-medium text-red-600">-₹{buyer.commission}</p>
+                    <p className="font-medium text-red-600">₹{buyer.commission}</p>
                   </div>
                   <div>
                     <span className="text-gray-500">Hamali (₹{buyer.hamaliCharge}/unit)</span>
-                    <p className="font-medium text-red-600">-₹{buyer.hamali}</p>
+                    <p className="font-medium text-red-600">₹{buyer.hamali}</p>
                   </div>
                   <div>
                     <span className="text-gray-500">Market Fee ({buyer.marketFeeRate}%)</span>
-                    <p className="font-medium text-red-600">-₹{buyer.marketFee}</p>
+                    <p className="font-medium text-red-600">₹{buyer.marketFee}</p>
                   </div>
                   <div>
                     <span className="text-gray-500">Total Deductions</span>
-                    <p className="font-bold text-red-600">-₹{buyer.totalDeductions}</p>
+                    <p className="font-bold text-red-600">₹{buyer.totalDeductions}</p>
                   </div>
                 </div>
               </div>
@@ -415,13 +415,13 @@ export default function SalesBillDetailPage() {
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">Commission</p>
               <p className="text-xl font-bold text-red-500">
-                -₹{bill.totals.totalCommission.toLocaleString()}
+                ₹{bill.totals.totalCommission.toLocaleString()}
               </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">Hamali + Market Fee</p>
               <p className="text-xl font-bold text-red-500">
-                -₹{(bill.totals.totalHamali + bill.totals.totalMarketFee).toLocaleString()}
+                ₹{(bill.totals.totalHamali + bill.totals.totalMarketFee).toLocaleString()}
               </p>
             </div>
             <div className="text-center bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">

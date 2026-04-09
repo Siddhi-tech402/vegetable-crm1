@@ -215,8 +215,8 @@ function NewPaymentContent() {
       return;
     }
 
-    if (totals.difference !== 0 && totals.settledAmount > 0) {
-      toast.error('Payment amount + Kasar should equal settled amount');
+    if (totals.difference < 0) {
+      toast.error('Settled amount cannot exceed your actual cash payment + Kasar.');
       return;
     }
 
@@ -505,15 +505,20 @@ function NewPaymentContent() {
                 </p>
               </div>
             </div>
-            {totals.difference !== 0 && totals.settledAmount > 0 && (
-              <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg text-yellow-700 dark:text-yellow-400 text-sm">
-                Cash + Kasar should equal bills being settled. Difference: ₹
-                {Math.abs(totals.difference)}
+            {totals.difference > 0 && totals.settledAmount > 0 && (
+              <div className="mt-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-700 dark:text-blue-400 text-sm">
+                Advance Payment (Unallocated amount added directly to balance): ₹
+                {totals.difference.toLocaleString()}
+              </div>
+            )}
+            {totals.difference < 0 && (
+              <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-700 dark:text-red-400 text-sm">
+                Error: Settled amount exceeds Cash + Kasar by ₹{Math.abs(totals.difference).toLocaleString()}! Please adjust.
               </div>
             )}
             {totals.difference === 0 && totals.settledAmount > 0 && (
               <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-700 dark:text-green-400 text-sm">
-                ✓ Payment is balanced and ready to save
+                ✓ Payment is perfectly balanced against settlements and ready to save.
               </div>
             )}
           </div>

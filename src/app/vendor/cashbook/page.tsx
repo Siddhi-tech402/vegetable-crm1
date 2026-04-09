@@ -52,21 +52,29 @@ export default function CashBookPage() {
   const loadTransactions = useCallback(async () => {
     try {
       const storeData = await fetchPayments();
-      const mapped: TransactionItem[] = storeData.map((p: any) => ({
-        id: p.localId || p._id || p.id,
-        localId: p.localId,
-        voucherNumber: p.voucherNumber,
-        type: p.type,
-        date: p.voucherDate,
-        partyType: p.customerId ? 'Customer' : 'Farmer',
-        partyCode: p.customerCode || p.farmerCode || '',
-        partyName: p.customerName || p.farmerName || '',
-        amount: p.amount || p.netAmount || 0,
-        mode: p.paymentMode || 'Cash',
-        reference: p.chequeNumber || p.upiReference || '',
-        narration: p.narration || '',
-        billReferences: p.billNumber ? [p.billNumber] : [],
-      }));
+      const mapped: TransactionItem[] = storeData.map((p: any) => {
+        let formattedDate = '';
+        const rawDate = p.voucherDate || p.date || p.createdAt;
+        if (rawDate) {
+          const d = new Date(rawDate);
+          if (!isNaN(d.getTime())) formattedDate = d.toISOString().split('T')[0];
+        }
+        return {
+          id: p.localId || p._id || p.id,
+          localId: p.localId,
+          voucherNumber: p.voucherNumber,
+          type: p.type,
+          date: formattedDate,
+          partyType: p.customerId ? 'Customer' : 'Farmer',
+          partyCode: p.customerCode || p.farmerCode || '',
+          partyName: p.customerName || p.farmerName || '',
+          amount: p.amount || p.netAmount || 0,
+          mode: p.paymentMode || 'Cash',
+          reference: p.chequeNumber || p.upiReference || '',
+          narration: p.narration || '',
+          billReferences: p.billNumber ? [p.billNumber] : [],
+        };
+      });
       setTransactions(mapped);
     } catch (error) {
       console.error('Failed to load transactions:', error);

@@ -1,8 +1,12 @@
 const withPWA = require('next-pwa')({
   dest: 'public',
-  register: true,
+  register: false,   // We register manually in providers.tsx for more control
   skipWaiting: true,
-  disable: process.env.NEXT_PUBLIC_PWA_DISABLED === 'true',
+  reloadOnOnline: true,
+  disable: process.env.NODE_ENV === 'development', // Disable in dev to avoid sw.js being overwritten
+  fallbacks: {
+    document: '/offline', // Show /offline page when a page can't be fetched offline
+  },
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
@@ -53,13 +57,14 @@ const withPWA = require('next-pwa')({
       },
     },
     {
-      urlPattern: /\/api\/.*$/i,
+      urlPattern: /\/api\/(?!auth).*/i,   // Cache all APIs except /api/auth
       handler: 'NetworkFirst',
       method: 'GET',
       options: {
         cacheName: 'apis',
         networkTimeoutSeconds: 10,
-        expiration: { maxEntries: 16, maxAgeSeconds: 24 * 60 * 60 },
+        expiration: { maxEntries: 64, maxAgeSeconds: 24 * 60 * 60 },
+        cacheableResponse: { statuses: [0, 200] },
       },
     },
     {
@@ -72,6 +77,7 @@ const withPWA = require('next-pwa')({
         cacheName: 'pages',
         networkTimeoutSeconds: 10,
         expiration: { maxEntries: 32, maxAgeSeconds: 24 * 60 * 60 },
+        cacheableResponse: { statuses: [0, 200] },
       },
     },
   ],
