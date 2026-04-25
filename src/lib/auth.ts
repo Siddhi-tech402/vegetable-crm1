@@ -29,6 +29,10 @@ export const authOptions: AuthOptions = {
           throw new Error('Your account has been deactivated');
         }
 
+        if (!user.isVerified) {
+          throw new Error('Please verify your email before logging in');
+        }
+
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isPasswordValid) {

@@ -11,6 +11,8 @@ export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -85,8 +87,9 @@ export default function SignupPage() {
         return;
       }
 
-      toast.success('Account created successfully! Please login.');
-      router.push('/auth/login');
+      toast.success('Account created! Please check your email to verify.');
+      setRegisteredEmail(formData.email);
+      setEmailSent(true);
     } catch (error) {
       toast.error('An error occurred. Please try again.');
     } finally {
@@ -110,14 +113,48 @@ export default function SignupPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-500 rounded-2xl mb-4">
             <span className="text-white text-2xl font-bold">V</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create Account</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {emailSent ? 'Check Your Email' : 'Create Account'}
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Join Vegetable CRM to manage your business
+            {emailSent ? 'A verification link has been sent' : 'Join Vegetable CRM to manage your business'}
           </p>
         </div>
 
-        {/* Signup Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+        {/* Email sent success panel */}
+        {emailSent ? (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Verify your email address</h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  We sent a verification link to
+                </p>
+                <p className="text-primary-600 dark:text-primary-400 font-semibold text-sm mt-1">
+                  {registeredEmail}
+                </p>
+                <p className="text-gray-500 dark:text-gray-500 text-xs mt-3">
+                  Click the link in the email to activate your account. The link expires in 1 hour.
+                </p>
+              </div>
+              <div className="w-full pt-2 border-t border-gray-100 dark:border-gray-700 mt-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Didn&apos;t get the email? Check your spam folder.</p>
+                <Link
+                  href="/auth/login"
+                  className="inline-block border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
+                >
+                  Back to Login
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               label="Full Name"
@@ -206,7 +243,8 @@ export default function SignupPage() {
               </Link>
             </p>
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
