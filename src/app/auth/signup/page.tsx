@@ -87,7 +87,7 @@ export default function SignupPage() {
         return;
       }
 
-      toast.success('Account created! Please check your email to verify.');
+      toast.success('Account created! Please verify your email to log in.');
       setRegisteredEmail(formData.email);
       setEmailSent(true);
     } catch (error) {
@@ -114,43 +114,62 @@ export default function SignupPage() {
             <span className="text-white text-2xl font-bold">V</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {emailSent ? 'Check Your Email' : 'Create Account'}
+            {emailSent ? 'Account Created! ✓' : 'Create Account'}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            {emailSent ? 'A verification link has been sent' : 'Join Vegetable CRM to manage your business'}
+            {emailSent ? 'One more step — verify your email' : 'Join Vegetable CRM to manage your business'}
           </p>
         </div>
 
         {/* Email sent success panel */}
         {emailSent ? (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center">
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-5">
+              {/* Success icon */}
               <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                 <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
+
+              {/* Message */}
               <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Verify your email address</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Account ready!</h2>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  We sent a verification link to
+                  Your account has been created for
                 </p>
-                <p className="text-primary-600 dark:text-primary-400 font-semibold text-sm mt-1">
+                <p className="text-primary-600 dark:text-primary-400 font-semibold text-sm mt-1 break-all">
                   {registeredEmail}
                 </p>
-                <p className="text-gray-500 dark:text-gray-500 text-xs mt-3">
-                  Click the link in the email to activate your account. The link expires in 1 hour.
-                </p>
               </div>
-              <div className="w-full pt-2 border-t border-gray-100 dark:border-gray-700 mt-2">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Didn&apos;t get the email? Check your spam folder.</p>
-                <Link
-                  href="/auth/login"
-                  className="inline-block border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
-                >
-                  Back to Login
-                </Link>
+
+              {/* Steps */}
+              <div className="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 text-left space-y-2">
+                <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wide">How to verify your email:</p>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">1.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Go to Login and enter your email &amp; password</p>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">2.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">You&apos;ll see a panel — tap <strong>&quot;Verify now&quot;</strong></p>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">3.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Click <strong>&quot;Send Verification Code&quot;</strong> — a 6-digit code will arrive in your email</p>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">4.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Enter the code to verify ✓</p>
+                </div>
               </div>
+
+              <Link
+                href="/auth/login"
+                className="w-full inline-block text-center bg-primary-500 hover:bg-primary-600 text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
+              >
+                Go to Login →
+              </Link>
             </div>
           </div>
         ) : (

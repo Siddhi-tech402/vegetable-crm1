@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
-import { sendVerificationEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -47,38 +45,18 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Generate email verification token (random 32-byte hex string)
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const verificationExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-    // Create user with isVerified = false
-    const user = await User.create({
+    // Create user — verification happens via OTP on the login page
+    await User.create({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
       role,
       isVerified: false,
-      emailVerificationToken: verificationToken,
-      emailVerificationExpiry: verificationExpiry,
     });
-
-    // Send verification email (non-blocking — don't fail signup if email fails)
-    try {
-      await sendVerificationEmail(user.email, user.name, verificationToken);
-    } catch (emailError) {
-      console.error('Failed to send verification email:', emailError);
-      // Still return success; user can request a resend later
-    }
 
     return NextResponse.json(
       {
-        message: 'Account created successfully. Please check your email to verify your account.',
-        user: {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
+        message: 'Account created! Go to login and use "Verify now" to verify your email with a 6-digit code.',
       },
       { status: 201 }
     );
