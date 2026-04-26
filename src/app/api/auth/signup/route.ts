@@ -45,23 +45,18 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user
-    const user = await User.create({
+    // Create user — verification happens via OTP on the login page
+    await User.create({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
       role,
+      isVerified: false,
     });
 
     return NextResponse.json(
       {
-        message: 'User created successfully',
-        user: {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
+        message: 'Account created! Go to login and use "Verify now" to verify your email with a 6-digit code.',
       },
       { status: 201 }
     );
