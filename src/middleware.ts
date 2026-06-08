@@ -25,8 +25,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Always allow: public auth pages, offline page, static files
-  const publicPaths = ['/auth/login', '/auth/signup', '/auth/error', '/', '/offline'];
-  const isPublicPath = publicPaths.some((path) => pathname === path);
+  const publicPaths = ['/auth/login', '/auth/signup', '/auth/error', '/', '/offline', '/verify-email'];
+  const isPublicPath =
+    publicPaths.some((path) => pathname === path) ||
+    pathname.startsWith('/verify-email');
   const isPublicApiPath =
     pathname.startsWith('/api/auth') || pathname.startsWith('/api/migrate');
 

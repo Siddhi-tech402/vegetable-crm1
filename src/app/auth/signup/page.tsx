@@ -11,6 +11,8 @@ export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -85,8 +87,9 @@ export default function SignupPage() {
         return;
       }
 
-      toast.success('Account created successfully! Please login.');
-      router.push('/auth/login');
+      toast.success('Account created! Please verify your email to log in.');
+      setRegisteredEmail(formData.email);
+      setEmailSent(true);
     } catch (error) {
       toast.error('An error occurred. Please try again.');
     } finally {
@@ -110,14 +113,67 @@ export default function SignupPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-500 rounded-2xl mb-4">
             <span className="text-white text-2xl font-bold">V</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create Account</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {emailSent ? 'Account Created! ✓' : 'Create Account'}
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Join Vegetable CRM to manage your business
+            {emailSent ? 'One more step — verify your email' : 'Join Vegetable CRM to manage your business'}
           </p>
         </div>
 
-        {/* Signup Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+        {/* Email sent success panel */}
+        {emailSent ? (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center">
+            <div className="flex flex-col items-center gap-5">
+              {/* Success icon */}
+              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+
+              {/* Message */}
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Account ready!</h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  Your account has been created for
+                </p>
+                <p className="text-primary-600 dark:text-primary-400 font-semibold text-sm mt-1 break-all">
+                  {registeredEmail}
+                </p>
+              </div>
+
+              {/* Steps */}
+              <div className="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 text-left space-y-2">
+                <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wide">How to verify your email:</p>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">1.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Go to Login and enter your email &amp; password</p>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">2.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">You&apos;ll see a panel — tap <strong>&quot;Verify now&quot;</strong></p>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">3.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Click <strong>&quot;Send Verification Code&quot;</strong> — a 6-digit code will arrive in your email</p>
+                </div>
+                <div className="flex gap-2 items-start">
+                  <span className="text-blue-500 font-bold text-sm mt-0.5">4.</span>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Enter the code to verify ✓</p>
+                </div>
+              </div>
+
+              <Link
+                href="/auth/login"
+                className="w-full inline-block text-center bg-primary-500 hover:bg-primary-600 text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
+              >
+                Go to Login →
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               label="Full Name"
@@ -206,7 +262,8 @@ export default function SignupPage() {
               </Link>
             </p>
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

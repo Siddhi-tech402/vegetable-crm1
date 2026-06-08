@@ -5,47 +5,68 @@ import connectDB from '@/lib/db';
 import Farmer from '@/models/Farmer';
 import SalesBill from '@/models/SalesBill';
 import SupplyEntry from '@/models/SupplyEntry';
-import { resolveFarmerForSessionUser } from '@/lib/farmerResolver';
 
+// GET /api/debug/farmer-link — shows what the resolver finds for the current farmer user
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  await connectDB();
+    await connectDB();
 
-  const resolvedFarmer = await resolveFarmerForSessionUser(session.user);
+    const userId = session.user.id;
+    const userName = session.user.name;
+    const userEmail = session.user.email;
 
-  const allFarmers = await Farmer.find({}).select('_id code name email userId createdBy').lean();
-  const allBillsCount = await SalesBill.countDocuments({});
-  const billsForFarmer = resolvedFarmer
-    ? await SalesBill.find({ farmerId: resolvedFarmer._id }).select('billNumber farmerName farmerCode farmerId').lean()
-    : [];
+    // Check 1: linked by userId
+    const byUserId = await Farmer.findOne({ userId });
 
-  const allBillSample = await SalesBill.find({}).select('billNumber farmerName farmerCode farmerId').limit(5).lean();
+    // Check 2: linked by email
+    const byEmail = userEmail
+      ? await Farmer.findOne({ email: userEmail.toLowerCase() })
+      : null;
 
-  const supplyCount = resolvedFarmer
-    ? await SupplyEntry.countDocuments({ farmerId: resolvedFarmer._id })
-    : 0;
+    // Check 3: match by name (case-insensitive)
+    const byName = userName
+      ? await Farmer.find({ name: new RegExp(userName.trim(), 'i') })
+      : [];
 
-  return NextResponse.json({
-    sessionUser: {
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-      role: session.user.role,
-    },
-    resolvedFarmer: resolvedFarmer ? {
-      _id: resolvedFarmer._id,
-      code: resolvedFarmer.code,
-      name: resolvedFarmer.name,
-      email: resolvedFarmer.email,
-      userId: resolvedFarmer.userId,
-      createdBy: resolvedFarmer.createdBy,
-    } : null,
-    allFarmers,
-    totalBillsInDB: allBillsCount,
-    billsMatchingFarmer: billsForFarmer,
-    billSample: allBillSample,
-    supplyEntriesForFarmer: supplyCount,
-  });
+    // All farmers in DB (to help diagnose name mismatches)
+    const allFarmers = await Farmer.find({}).select('code name email userId').limit(20);
+
+    // Bills count for each farmer found
+    let billsForLinked = 0;
+    let suppliesForLinked = 0;
+    const linked = byUserId || byEmail || byName[0] || null;
+    if (linked) {
+      const nameRegex = new RegExp(`^${linked.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+      billsForLinked = await SalesBill.countDocuments({
+        $or: [{ farmerId: linked._id }, { farmerName: nameRegex }],
+      });
+      suppliesForLinked = await SupplyEntry.countDocuments({
+        $or: [{ farmerId: linked._id }, { farmerName: nameRegex }],
+      });
+    }
+
+    return NextResponse.json({
+      session: { id: userId, name: userName, email: userEmail, role: session.user.role },
+      farmerLinkedByUserId: byUserId ? { _id: byUserId._id, code: byUserId.code, name: byUserId.name } : null,
+      farmerLinkedByEmail: byEmail ? { _id: byEmail._id, code: byEmail.code, name: byEmail.name } : null,
+      farmerMatchedByName: byName.map(f => ({ _id: f._id, code: f.code, name: f.name })),
+      farmerResolved: linked ? { _id: linked._id, code: linked.code, name: linked.name } : null,
+      billsFound: billsForLinked,
+      suppliesFound: suppliesForLinked,
+      allFarmersInDB: allFarmers.map(f => ({
+        _id: f._id,
+        code: f.code,
+        name: f.name,
+        email: f.email,
+        hasUserId: !!f.userId,
+      })),
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
